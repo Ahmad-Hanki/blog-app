@@ -1,7 +1,10 @@
 import Link from "next/link";
 import React from "react";
-import { LoginLink } from "@kinde-oss/kinde-auth-nextjs/components";
-const Header = () => {
+import { LoginLink, LogoutLink } from "@kinde-oss/kinde-auth-nextjs/components";
+import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
+const Header = async () => {
+  const isAuthenticated = await getKindeServerSession().isAuthenticated();
+
   return (
     <header className="bg-blue-500 p-4 ">
       <nav className="flex justify-between items-center max-w-4xl mx-auto">
@@ -9,9 +12,12 @@ const Header = () => {
           My Blogs
         </Link>
         <ul className="flex space-x-4">
-          <li className=" ">
-            <LoginLink className="text-white hover:underline">LogIn</LoginLink>
-          </li>
+          {!isAuthenticated && <li className=" ">
+            <LoginLink> Log in</LoginLink>
+          </li>}
+          {isAuthenticated && <li className=" ">
+            <LogoutLink>Log out</LogoutLink>
+          </li>}
           <li>
             <Link className="text-white hover:underline" href={"/blogs"}>
               Blogs

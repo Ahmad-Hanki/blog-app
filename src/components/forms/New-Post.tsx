@@ -1,18 +1,22 @@
 "use client";
-
+import { useKindeBrowserClient } from "@kinde-oss/kinde-auth-nextjs";
 import { FormData } from "@/types/blog";
 import React, { ChangeEvent, FormEvent, useState } from "react";
 import TextareaAutosize from "react-textarea-autosize";
+import axios from "axios";
+import { redirect, useRouter } from "next/navigation";
 
 const inputClass =
   "w-full py-2 px-3 border -border-gary-300 rounded-md focus:line-none focus:ring focus:border-blue-300 text-black";
 
 const NewPost = () => {
+  const router = useRouter();
   const [formData, setFormData] = useState<FormData>({
     content: "",
     title: "",
   });
 
+  const { user } = useKindeBrowserClient();
   const handleChange = (
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
@@ -24,11 +28,24 @@ const NewPost = () => {
         [name]: value,
       };
     });
+
+    console.log(formData);
   };
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    console.log(formData);
+
+    try {
+      const res = await axios.post("/api/posts", {
+        title: formData.title,
+        content: formData.content,
+      });
+      if (res.status == 200) {
+        router.push(`/blogs/${res.data.newPost.id}`)
+            }
+    } catch (err) {
+      console.error(err);
+    }
   };
   return (
     <form className="max-w-4xl mx-auto p-4" onSubmit={handleSubmit}>
